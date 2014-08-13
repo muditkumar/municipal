@@ -1,0 +1,1 @@
+TweetFetchCheckpoints = new Meteor.Collection('tweet_fetch_checkpoints');
