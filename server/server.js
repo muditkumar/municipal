@@ -1,12 +1,14 @@
+// Create the Twitter API object
 var Twit = new TwitMaker({
 	consumer_key: 'dqcMeV5hxtfXXn72eKTxwvsRB',
-    consumer_secret: 'xNfukQcCZLw6Kx9VAwDhuY8F8fq55U7RWqTCEoRFpwyedyPKK8',
-  	access_token: '301480573-oxhOLZp3aVFhEKVPD8TFqF0SVow8qPAlhVnUdfyT',
-  	access_token_secret: 'jPrCoBNHyxtTfIkWnfi4jashz2iq1Zbqsqo2A7lVgKK7E'
+	consumer_secret: 'xNfukQcCZLw6Kx9VAwDhuY8F8fq55U7RWqTCEoRFpwyedyPKK8',
+	access_token: '301480573-oxhOLZp3aVFhEKVPD8TFqF0SVow8qPAlhVnUdfyT',
+	access_token_secret: 'jPrCoBNHyxtTfIkWnfi4jashz2iq1Zbqsqo2A7lVgKK7E'
 });
 
 /**
- * Fetches tweets from Twitter, starting from after the last stored tweet.
+ * Fetches tweets from Twitter, starting from after the last stored tweet, and
+ * stores them in the 'Tweets' collection.
  * @param {number} [count=100] - The (max) number of tweets to fetch.
  */
 function fetchTweets(count) {
@@ -20,14 +22,12 @@ function fetchTweets(count) {
 	}
 
 	Twit.get(
-		'search/tweets', // Twitter API endpoint 
-		
+		'search/tweets', // Twitter API endpoint 		
 		{ // Query params
-			q: '@meteorjs', 
+			q: '#worldcup', 
 			count: count,
 			since_id: sinceIdStr
-		},
-		
+		},		
 		Meteor.bindEnvironment( // Needed to run the callback in a Fiber
 			function(err, data) {
 				if (!err) {
@@ -47,7 +47,13 @@ function storeTweets(tweets) {
 	var maxIdStr = null;
 
 	for (i = 0; i < tweets.length; i++) {
-		var tweetIdStr = tweets[0]['id_str'];
+		var tweet = tweets[0];
+
+		var conciseTweet = removeUnwantedTweetFields(tweet);
+		
+		Tweets.insert(conciseTweet);
+
+		var tweetIdStr = conciseTweet['id_str'];
 
 		if (tweetIdStr > maxIdStr) {
 			maxIdStr = tweetIdStr;
@@ -61,7 +67,7 @@ function storeTweets(tweets) {
 
 /**
  * Records the id of the last stored tweet, which can then be used as the
- * the 'since_id' for the next fetch.
+ * 'since_id' for the next fetch.
  * @param {string} maxIdStr - The largest tweet id seen yet.
  */
 function updateTweetFetchCheckpoint(maxIdStr) {
@@ -72,5 +78,49 @@ function updateTweetFetchCheckpoint(maxIdStr) {
 		{ upsert: true });
 }
 
-// Testing the tweet fetching -> storing mechanism
-fetchTweets(1)
+/**
+ * Removes unwanted fields from a tweet returned by Twitter, since we don't
+ * need to store everything in the database.
+ * @param {object} tweet - A Tweet as returned by the Twitter API.
+ * @returns {object} The pared down tweet, suitable for storage in the DB.
+ */
+function removeUnwantedTweetFields(tweet) {
+	var tweetUser = tweet['user'];
+
+	// We have tried to preserve the order of the fields as returned from
+	// Twitter
+	var conciseTweet = {
+		created_at: tweet['created_at'],
+		id_str: tweet['id_str'],
+		text: tweet['text'],
+		in_reply_to_status_id_str: tweet['in_reply_to_status_id_str'],
+		in_reply_to_user_id_str: tweet['in_reply_to_user_id_str'],
+		in_reply_to_screen_name: tweet['in_reply_to_screen_name'],
+		user: {
+			id_str: tweetUser['id_str'],
+			screen_name: tweetUser['screen_name'],
+			location: tweetUser['location'],			
+		},
+		retweet_count: tweet['retweet_count'],
+		favorite_count: tweet['favorite_count']
+	};
+
+	return conciseTweet;
+}
+
+// A cron job for repeatedly fetching tweets
+SyncedCron.add({
+  name: 'fetchTweets',
+  schedule: function(parser) {
+    // parser is a later.parse object
+    return parser.text('every 15 seconds');
+  }, 
+  job: function() {
+  	fetchTweets(1)
+  }
+});
+
+// Start all cron jobs
+Meteor.startup(function() {
+  SyncedCron.start();
+});
