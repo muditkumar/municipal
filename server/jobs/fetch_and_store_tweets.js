@@ -4,45 +4,45 @@
 
 // Create the Twitter API object
 var Twit = new TwitMaker({
-    consumer_key: 'H7KxTzrTAh41NT2OuF5LChYVK',
-    consumer_secret: 'xIcrI497toRE7WVBS0MKpYnjYVhdvSpTR5TDeFbAiGnHVtl84x',
-    access_token: '2731059560-izGpONMqZ0aVqoex8RIAPGy6TDAVLbtukcreBZm',
-    access_token_secret: 'Qdehiila8IYLGuAZM2ScAQwxolvm53B4zdNNlZoCR7eI8'
+  consumer_key: 'H7KxTzrTAh41NT2OuF5LChYVK',
+  consumer_secret: 'xIcrI497toRE7WVBS0MKpYnjYVhdvSpTR5TDeFbAiGnHVtl84x',
+  access_token: '2731059560-izGpONMqZ0aVqoex8RIAPGy6TDAVLbtukcreBZm',
+  access_token_secret: 'Qdehiila8IYLGuAZM2ScAQwxolvm53B4zdNNlZoCR7eI8'
 });
 
 /**
- * Fetches tweets from Twitter, resuming after the last stored tweet, and 
+ * Fetches tweets from Twitter, resuming after the last stored tweet, and
  * stores them in the 'Tweets' collection.
  * This is the 'main' method in this file, i.e. it uses all the methods below.
  * @param {number} [count=100] - The (max) number of tweets to fetch.
  */
 
 function fetchAndStoreTweets(count) {
-    var count = count || 100;
+  var count = count || 100;
 
-    var sinceIdStr = '0';
-    var tweetFetchCheckpoint = TweetFetchCheckpoints.findOne();
+  var sinceIdStr = '0';
+  var tweetFetchCheckpoint = TweetFetchCheckpoints.findOne();
 
-    if (tweetFetchCheckpoint) {
-        sinceIdStr = tweetFetchCheckpoint['max_id_str'];
-    }
+  if (tweetFetchCheckpoint) {
+    sinceIdStr = tweetFetchCheckpoint['max_id_str'];
+  }
 
-    Twit.get(
-        'search/tweets', // Twitter API endpoint 		
-        { // Query params
-            q: '@bmcpl',
-            count: count,
-            since_id: sinceIdStr
-        },
-        Meteor.bindEnvironment( // Needed to run the callback in a Fiber
+  Twit.get(
+    'search/tweets', // Twitter API endpoint 		
+    { // Query params
+      q: '@bmcpl',
+      count: count,
+      since_id: sinceIdStr
+    },
+    Meteor.bindEnvironment( // Needed to run the callback in a Fiber
 
-            function(err, data) {
-                if (!err) {
-                    storeTweets(data['statuses']);
-                }
-            }
-        )
-    );
+      function(err, data) {
+        if (!err) {
+          storeTweets(data['statuses']);
+        }
+      }
+    )
+  );
 }
 
 /**
@@ -52,25 +52,25 @@ function fetchAndStoreTweets(count) {
  */
 
 function storeTweets(tweets) {
-    var maxIdStr = null;
+  var maxIdStr = null;
 
-    for (i = 0; i < tweets.length; i++) {
-        var tweet = tweets[0];
+  for (i = 0; i < tweets.length; i++) {
+    var tweet = tweets[0];
 
-        var conciseTweet = removeUnwantedTweetFields(tweet);
+    var conciseTweet = removeUnwantedTweetFields(tweet);
 
-        Tweets.insert(conciseTweet);
+    Tweets.insert(conciseTweet);
 
-        var tweetIdStr = conciseTweet['id_str'];
+    var tweetIdStr = conciseTweet['id_str'];
 
-        if (tweetIdStr > maxIdStr) {
-            maxIdStr = tweetIdStr;
-        }
+    if (tweetIdStr > maxIdStr) {
+      maxIdStr = tweetIdStr;
     }
+  }
 
-    if (maxIdStr) {
-        updateTweetFetchCheckpoint(maxIdStr);
-    }
+  if (maxIdStr) {
+    updateTweetFetchCheckpoint(maxIdStr);
+  }
 }
 
 /**
@@ -80,16 +80,16 @@ function storeTweets(tweets) {
  */
 
 function updateTweetFetchCheckpoint(maxIdStr) {
-    // Does a create or update, as required
-    TweetFetchCheckpoints.update({
-        max_id_str: {
-            $exists: true
-        }
-    }, {
-        max_id_str: maxIdStr
-    }, {
-        upsert: true
-    });
+  // Does a create or update, as required
+  TweetFetchCheckpoints.update({
+    max_id_str: {
+      $exists: true
+    }
+  }, {
+    max_id_str: maxIdStr
+  }, {
+    upsert: true
+  });
 }
 
 /**
@@ -100,38 +100,38 @@ function updateTweetFetchCheckpoint(maxIdStr) {
  */
 
 function removeUnwantedTweetFields(tweet) {
-    var tweetUser = tweet['user'];
+  var tweetUser = tweet['user'];
 
-    // We have tried to preserve the order of the fields as returned from
-    // Twitter
-    var conciseTweet = {
-        created_at: tweet['created_at'],
-        id_str: tweet['id_str'],
-        text: tweet['text'],
-        in_reply_to_status_id_str: tweet['in_reply_to_status_id_str'],
-        in_reply_to_user_id_str: tweet['in_reply_to_user_id_str'],
-        in_reply_to_screen_name: tweet['in_reply_to_screen_name'],
-        user: {
-            id_str: tweetUser['id_str'],
-            screen_name: tweetUser['screen_name'],
-            location: tweetUser['location'],
-        },
-        retweet_count: tweet['retweet_count'],
-        favorite_count: tweet['favorite_count']
-    };
+  // We have tried to preserve the order of the fields as returned from
+  // Twitter
+  var conciseTweet = {
+    created_at: tweet['created_at'],
+    id_str: tweet['id_str'],
+    text: tweet['text'],
+    in_reply_to_status_id_str: tweet['in_reply_to_status_id_str'],
+    in_reply_to_user_id_str: tweet['in_reply_to_user_id_str'],
+    in_reply_to_screen_name: tweet['in_reply_to_screen_name'],
+    user: {
+      id_str: tweetUser['id_str'],
+      screen_name: tweetUser['screen_name'],
+      location: tweetUser['location'],
+    },
+    retweet_count: tweet['retweet_count'],
+    favorite_count: tweet['favorite_count']
+  };
 
-    return conciseTweet;
+  return conciseTweet;
 }
 
 // A cron job for fetching tweets from Twitter, and storing them in the 
 // 'Tweets' collection.
 SyncedCron.add({
-    name: 'fetchAndStoreTweets',
-    schedule: function(parser) {
-        // parser is a later.parse object
-        return parser.text('every 15 seconds');
-    },
-    job: function() {
-        fetchAndStoreTweets(1);
-    }
+  name: 'fetchAndStoreTweets',
+  schedule: function(parser) {
+    // parser is a later.parse object
+    return parser.text('every 15 seconds');
+  },
+  job: function() {
+    fetchAndStoreTweets(1);
+  }
 });

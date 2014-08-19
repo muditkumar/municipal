@@ -6,7 +6,8 @@
 standard-app-packages
 autopublish
 insecure
-iron-router
 less
 twit
 synced-cron
+iron-router
+bootstrap-3

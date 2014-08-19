@@ -1,7 +1,10 @@
 {
   "packages": {
-    "iron-router": {},
     "twit": {},
-    "synced-cron": {}
+    "synced-cron": {},
+    "iron-router": {
+      "version": "0.8.2"
+    },
+    "bootstrap-3": {}
   }
 }

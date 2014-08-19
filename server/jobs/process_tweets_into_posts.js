@@ -11,31 +11,31 @@
  */
 
 function processTweetsIntoPosts(count) {
-    count = count || 10;
+  count = count || 10;
 
-    var selector = {};
-    var tweetProcessCheckpoint = TweetProcessCheckpoints.findOne();
+  var selector = {};
+  var tweetProcessCheckpoint = TweetProcessCheckpoints.findOne();
 
-    if (tweetProcessCheckpoint) {
-        var maxIdStr = tweetProcessCheckpoint['max_id_str'];
+  if (tweetProcessCheckpoint) {
+    var maxIdStr = tweetProcessCheckpoint['max_id_str'];
 
-        if (maxIdStr) {
-            selector = {
-                'id_str': {
-                    $gt: maxIdStr
-                }
-            };
+    if (maxIdStr) {
+      selector = {
+        'id_str': {
+          $gt: maxIdStr
         }
+      };
     }
+  }
 
-    var tweets = Tweets.find(selector, {
-        sort: {
-            'id_str': 1
-        },
-        limit: count
-    });
+  var tweets = Tweets.find(selector, {
+    sort: {
+      'id_str': 1
+    },
+    limit: count
+  });
 
-    createPosts(tweets);
+  createPosts(tweets);
 }
 
 /**
@@ -45,21 +45,21 @@ function processTweetsIntoPosts(count) {
  */
 
 function createPosts(tweets) {
-    var maxIdStr = null;
+  var maxIdStr = null;
 
-    tweets.forEach(function(tweet) {
-        var tweetIdStr = tweet['id_str'];
+  tweets.forEach(function(tweet) {
+    var tweetIdStr = tweet['id_str'];
 
-        new PostCreator().createPost(tweet);
+    new PostCreator().createPostFromTweet(tweet);
 
-        if (tweetIdStr > maxIdStr) {
-            maxIdStr = tweetIdStr;
-        }
-    });
-
-    if (maxIdStr) {
-        updateTweetProcessCheckpoint(maxIdStr);
+    if (tweetIdStr > maxIdStr) {
+      maxIdStr = tweetIdStr;
     }
+  });
+
+  if (maxIdStr) {
+    updateTweetProcessCheckpoint(maxIdStr);
+  }
 }
 
 /**
@@ -70,27 +70,27 @@ function createPosts(tweets) {
  */
 
 function updateTweetProcessCheckpoint(maxIdStr) {
-    // Does a create or update, as required
-    TweetProcessCheckpoints.update({
-        max_id_str: {
-            $exists: true
-        }
-    }, {
-        max_id_str: maxIdStr
-    }, {
-        upsert: true
-    });
+  // Does a create or update, as required
+  TweetProcessCheckpoints.update({
+    max_id_str: {
+      $exists: true
+    }
+  }, {
+    max_id_str: maxIdStr
+  }, {
+    upsert: true
+  });
 }
 
 // A cron job for fetching tweets from Twitter, and storing them in the 
 // 'Tweets' collection.
 SyncedCron.add({
-    name: 'processTweetsIntoPosts',
-    schedule: function(parser) {
-        // parser is a later.parse object
-        return parser.text('every 15 seconds');
-    },
-    job: function() {
-        processTweetsIntoPosts(1);
-    }
+  name: 'processTweetsIntoPosts',
+  schedule: function(parser) {
+    // parser is a later.parse object
+    return parser.text('every 15 seconds');
+  },
+  job: function() {
+    processTweetsIntoPosts(1);
+  }
 });

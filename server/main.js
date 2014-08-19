@@ -3,5 +3,5 @@
 
 // Start all cron jobs
 Meteor.startup(function() {
-    SyncedCron.start();
+  SyncedCron.start();
 });
