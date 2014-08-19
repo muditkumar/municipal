@@ -1,5 +1,6 @@
-// Sets up the entire mechanism to fetch and store tweets from Twitter.
-// Only starting off cron jobs using SyncedCron.start() is required.
+// Sets up a cron job for fetching and storing tweets from Twitter.
+// Contains all the logic for every step of this process.
+// Only starting off cron jobs with SyncedCron.start() is required.
 
 // Create the Twitter API object
 var Twit = new TwitMaker({
@@ -10,19 +11,20 @@ var Twit = new TwitMaker({
 });
 
 /**
- * Fetches tweets from Twitter, resuming after the last stored tweet,
- * and stores them in the 'Tweets' collection.
+ * Fetches tweets from Twitter, resuming after the last stored tweet, and 
+ * stores them in the 'Tweets' collection.
+ * This is the 'main' method in this file, i.e. it uses all the methods below.
  * @param {number} [count=100] - The (max) number of tweets to fetch.
  */
 
-function fetchTweets(count) {
-    var count = count || 100
+function fetchAndStoreTweets(count) {
+    var count = count || 100;
 
-    var sinceIdStr = '0'
-    var tweetFetchCheckpoint = TweetFetchCheckpoints.findOne()
+    var sinceIdStr = '0';
+    var tweetFetchCheckpoint = TweetFetchCheckpoints.findOne();
 
     if (tweetFetchCheckpoint) {
-        sinceIdStr = tweetFetchCheckpoint['max_id_str']
+        sinceIdStr = tweetFetchCheckpoint['max_id_str'];
     }
 
     Twit.get(
@@ -36,7 +38,7 @@ function fetchTweets(count) {
 
             function(err, data) {
                 if (!err) {
-                    storeTweets(data['statuses'])
+                    storeTweets(data['statuses']);
                 }
             }
         )
@@ -67,18 +69,18 @@ function storeTweets(tweets) {
     }
 
     if (maxIdStr) {
-        updateTweetFetchCheckpoint(maxIdStr)
+        updateTweetFetchCheckpoint(maxIdStr);
     }
 }
 
 /**
- * Records the id of the last stored tweet, 
+ * Records the Twitter id of the last stored tweet.
  * This can then be used as the 'since_id' for the next fetch.
- * @param {string} maxIdStr - The largest tweet id seen yet.
+ * @param {string} maxIdStr - The largest id seen yet.
  */
 
 function updateTweetFetchCheckpoint(maxIdStr) {
-    // Does a create of update, as required
+    // Does a create or update, as required
     TweetFetchCheckpoints.update({
         max_id_str: {
             $exists: true
@@ -121,14 +123,15 @@ function removeUnwantedTweetFields(tweet) {
     return conciseTweet;
 }
 
-// A cron job for repeatedly fetching tweets
+// A cron job for fetching tweets from Twitter, and storing them in the 
+// 'Tweets' collection.
 SyncedCron.add({
-    name: 'fetchTweets',
+    name: 'fetchAndStoreTweets',
     schedule: function(parser) {
         // parser is a later.parse object
         return parser.text('every 15 seconds');
     },
     job: function() {
-        fetchTweets(1)
+        fetchAndStoreTweets(1);
     }
 });
