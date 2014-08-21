@@ -8,7 +8,8 @@
         "version": "0.8.2"
       },
       "bootstrap-3": {},
-      "pince": {}
+      "pince": {},
+      "fuzzy-search": {}
     },
     "packages": {
       "twit": {
@@ -35,6 +36,11 @@
         "git": "https://github.com/mad-eye/pince.git",
         "tag": "v0.0.5",
         "commit": "4524ecc0bdf043c49dc62e91bbd8a99c661081ed"
+      },
+      "fuzzy-search": {
+        "git": "https://github.com/perak/fuzzy-search.git",
+        "tag": "v0.1.9",
+        "commit": "94f2ba2126cad9cd18365ad3aa85ee73f8ed3109"
       },
       "iron-layout": {
         "git": "https://github.com/EventedMind/iron-layout.git",

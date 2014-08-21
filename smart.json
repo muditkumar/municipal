@@ -6,6 +6,7 @@
       "version": "0.8.2"
     },
     "bootstrap-3": {},
-    "pince": {}
+    "pince": {},
+    "fuzzy-search": {}
   }
 }

@@ -45,7 +45,7 @@ function processTweetsIntoPosts(count) {
 /**
  * Creates posts out of tweets given as a 'Tweets' collection cursor, and
  * stores them in the 'Posts' collection.
- * @param {Object} tweets - The tweets, as a cursor
+ * @param {object} tweets - The tweets, as a cursor
  */
 function createPosts(tweets) {
   var maxIdStr = null;
