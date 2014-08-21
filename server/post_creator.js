@@ -5,7 +5,7 @@ PostCreator = function() {};
 
 /**
  * Creates a post from a tweet, and stores it in the 'Posts' collection.
- * @param (Object) tweet - A tweet from the 'Tweets' collection.
+ * @param {Object} tweet - A tweet from the 'Tweets' collection.
  */
 PostCreator.prototype.createPostFromTweet = function(tweet) {
   var post = buildPostFromTweet(tweet);
@@ -13,7 +13,7 @@ PostCreator.prototype.createPostFromTweet = function(tweet) {
   if (post) {
     Posts.insert(post);
   }
-}
+};
 
 /////////////
 // Private //
@@ -40,19 +40,17 @@ function buildPostFromTweet(tweet) {
 
   var location = hashtags[0];
 
-  var post = {
+  return {
     created_at: tweet['created_at'],
     text: tweet['text'],
     location: location,
     twitter_user: {
       id_str: tweetUser['id_str'],
       screen_name: tweetUser['screen_name'],
-      location: tweetUser['location'],
+      location: tweetUser['location']
     },
     tweet_id_str: tweet['id_str']
   };
-
-  return post;
 }
 
 /**
@@ -70,7 +68,7 @@ function getHashtags(tweetText) {
 
   var cleanedUpHashtags = new Array(hashtags.length);
 
-  for (i = 0; i < hashtags.length; i++) {
+  for (var i = 0; i < hashtags.length; i++) {
     var hashtag = hashtags[i];
 
     hashtag = hashtag.trim();

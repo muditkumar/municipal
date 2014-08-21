@@ -18,7 +18,7 @@ var Twit = new TwitMaker({
  */
 
 function fetchAndStoreTweets(count) {
-  var count = count || 100;
+  count = count || 100;
 
   var sinceIdStr = '0';
   var tweetFetchCheckpoint = TweetFetchCheckpoints.findOne();
@@ -54,7 +54,7 @@ function fetchAndStoreTweets(count) {
 function storeTweets(tweets) {
   var maxIdStr = null;
 
-  for (i = 0; i < tweets.length; i++) {
+  for (var i = 0; i < tweets.length; i++) {
     var tweet = tweets[0];
 
     var conciseTweet = removeUnwantedTweetFields(tweet);
@@ -104,7 +104,7 @@ function removeUnwantedTweetFields(tweet) {
 
   // We have tried to preserve the order of the fields as returned from
   // Twitter
-  var conciseTweet = {
+  return {
     created_at: tweet['created_at'],
     id_str: tweet['id_str'],
     text: tweet['text'],
@@ -114,13 +114,11 @@ function removeUnwantedTweetFields(tweet) {
     user: {
       id_str: tweetUser['id_str'],
       screen_name: tweetUser['screen_name'],
-      location: tweetUser['location'],
+      location: tweetUser['location']
     },
     retweet_count: tweet['retweet_count'],
     favorite_count: tweet['favorite_count']
   };
-
-  return conciseTweet;
 }
 
 // A cron job for fetching tweets from Twitter, and storing them in the 
