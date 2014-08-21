@@ -1,5 +1,6 @@
 /**
  * Creates posts out of tweets from the 'Tweets' collection.
+ * @constructor
  */
 PostCreator = function () {
 };
