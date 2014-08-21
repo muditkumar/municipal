@@ -35,10 +35,8 @@ function processTweetsIntoPosts(count) {
   }
 
   var tweets = Tweets.find(selector, {
-    sort: {
-      'id_str': 1
-    },
-    limit: count
+      sort: { 'id_str': 1 },
+      limit: count
   });
 
   createPosts(tweets);
