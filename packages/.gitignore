@@ -1,11 +1,9 @@
-/bootstrap3-less
 /iron-router
 /iron-layout
 /blaze-layout
 /iron-core
 /iron-dynamic-template
-/npm
 /twit
 /synced-cron
-/winston
 /bootstrap-3
+/npm

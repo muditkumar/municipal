@@ -1,6 +1,6 @@
 # IDE Setup
 
-If using WebStorm, the following customizations are:
+If using WebStorm, the following customization is:
 
 ## Required
 1. .gitignore: Exclude .idea
@@ -12,13 +12,27 @@ If using WebStorm, the following customizations are:
 ## Helpful
 1. Settings > Javascript > Libraries: Add ~/.meteor/packages, to enable Meteor
     code completion
-1. View > Tool Windows > Mongo Explorer: Set up a server with as follows:
+1. View > Tool Windows > Mongo Explorer: Set up a server as follows:
     Label: meteor-mongo, Server URL(s): 127.0.0.1:3000, Database: meteor. 
-    This will allow you to view the collection in the DB straight from WebStorm
+    This will allow you to view collections in the DB directly from WebStorm.
 
-For more ideas on customization, see
+For more customization ideas, see
 https://github.com/awatson1978/meteor-cookbook/blob/master/cookbook/webstorm.md
 
-If using SublimeText or TextMate, no such customizations are required.
-For other IDEs or editors not mentioned here, do a Google search for how to use
-with Meteor.
+If using SublimeText, TextMate, or any other non-IDE editor, no customization
+should be necessary.
+
+# Meteor Setup
+
+Standard Meteor packages themselves will usually not be enough for creating a 
+complete app. So we must install Meteorite, for pulling-in community created 
+Meteor packages from Atmosphere (https://atmospherejs.com/). 
+
+See http://oortcloud.github.io/meteorite/ for instructions. 
+
+It is theoretically possible to use ANY node.js module in a Meteor app, but we
+discourage it at this point. We feel it may lead to problems when deploying to
+any PaaS offering such as Modulus etc.
+
+See https://meteorhacks.com/npm-meteor-integration-is-back.html for how to use
+npm modules with Meteor.
