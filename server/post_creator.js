@@ -38,6 +38,8 @@ function buildPostFromTweet(tweet) {
   var hashtags = getHashtags(tweet['text']);
 
   if (!hashtags) {
+    log.warn('Could not create post. No location hashtag found.');
+
     return null;
   }
 

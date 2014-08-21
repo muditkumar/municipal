@@ -36,3 +36,32 @@ any PaaS offering such as Modulus etc.
 
 See https://meteorhacks.com/npm-meteor-integration-is-back.html for how to use
 npm modules with Meteor.
+
+# App Architecture
+
+App execution begins in the server/main.js file.
+
+## Main Background Jobs
+
+There are two main background jobs which form the "meat" of the application.
+These can be found in the server/jobs directory.
+
+### The fetch_and_store_tweets job
+
+This job periodically fetches and stores tweets from Twitter via the REST API.
+Job frequency and batch size can be configured via constants at the top of the
+file.
+
+### The process_tweets_into_posts job
+
+This job fetches stored tweets and creates posts (i.e. complaints) from them.
+Job frequency and batch size can be configured via constants at the top of the
+file.
+
+## Main Business Logic
+
+There are a few classes that do a lot of the heavy lifting for processing the
+tweet data.
+
+1. PostCreator (server/post_creator.js)
+1. FuzzyLocationFinder (server/fuzzy_location_finder.js)
