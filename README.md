@@ -52,6 +52,26 @@ This job periodically fetches and stores tweets from Twitter via the REST API.
 Job frequency and batch size can be configured via constants at the top of the
 file.
 
+NOTE: This is only a 'shortcut' provided for easy development. The right way
+to store tweets is using the separate 'municipal-tweet-fetcher' app, as it uses 
+the more robust Twitter streaming API. However, for quick development, use this 
+job instead, but be aware that due to the nature of the REST API, some tweets
+may be missed.
+
+If you wish to use municipal-tweet-fetcher instead of the REST API, you must 
+start this app connected to an 'external' DB (i.e. not the Meteor auto-created 
+one). To do so, use the following command start command:
+
+MONGO_URL=mongodb://localhost:27017/<db-name> meteor
+
+Note the port. You may have to change it to suit your Mongo configuration.
+Remember to also start your Mongo instance via the 'mongod' command if needed.
+
+Similarly, you must also start municipal-tweet-fetcher connected to this same 
+'external' DB.
+
+NOTE: municipal-tweet-fetcher is under development, and will be ready soon.
+
 ### The process_tweets_into_posts job
 
 This job fetches stored tweets and creates posts (i.e. complaints) from them.
