@@ -2,6 +2,6 @@
 // 'main'.
 
 // Start all cron jobs
-Meteor.startup(function() {
+Meteor.startup(function () {
   SyncedCron.start();
 });

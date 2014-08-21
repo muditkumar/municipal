@@ -6,7 +6,9 @@ If using WebStorm, the following customizations are required:
 1. Settings > Directories: Exclude .idea and .meteor
 1. Settings > Editor > Editor Tabs: Enable "Mark modified tabs with asterisk"
 1. Settings > General: Disable "Save files on frame deactivation" and 
-    "Save files automatically"
+    "Save files automatically", to get Meteor auto-restarts to work correctly
+1. Settings > Javascript > Libraries: Add ~/.meteor/packages, to enable Meteor
+    code completion
 
 For more ideas on customization, see
 https://github.com/awatson1978/meteor-cookbook/blob/master/cookbook/webstorm.md

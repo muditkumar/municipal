@@ -16,7 +16,6 @@ var Twit = new TwitMaker({
  * This is the 'main' method in this file, i.e. it uses all the methods below.
  * @param {number} [count=100] - The (max) number of tweets to fetch.
  */
-
 function fetchAndStoreTweets(count) {
   count = count || 100;
 
@@ -28,15 +27,14 @@ function fetchAndStoreTweets(count) {
   }
 
   Twit.get(
-    'search/tweets', // Twitter API endpoint 		
+    'search/tweets', // Twitter API endpoint
     { // Query params
       q: '@bmcpl',
       count: count,
       since_id: sinceIdStr
     },
     Meteor.bindEnvironment( // Needed to run the callback in a Fiber
-
-      function(err, data) {
+      function (err, data) {
         if (!err) {
           storeTweets(data['statuses']);
         }
@@ -50,7 +48,6 @@ function fetchAndStoreTweets(count) {
  * @param {object[]} tweets - An array of tweets (normally the 'statuses'
  * attribute) of the reponse data from Twitter.
  */
-
 function storeTweets(tweets) {
   var maxIdStr = null;
 
@@ -78,18 +75,15 @@ function storeTweets(tweets) {
  * This can then be used as the 'since_id' for the next fetch.
  * @param {string} maxIdStr - The largest id seen yet.
  */
-
 function updateTweetFetchCheckpoint(maxIdStr) {
   // Does a create or update, as required
-  TweetFetchCheckpoints.update({
-    max_id_str: {
-      $exists: true
-    }
-  }, {
-    max_id_str: maxIdStr
-  }, {
-    upsert: true
-  });
+  TweetFetchCheckpoints.update(
+    {
+      max_id_str: { $exists: true }
+    },
+    { max_id_str: maxIdStr },
+    { upsert: true }
+  );
 }
 
 /**
@@ -98,7 +92,6 @@ function updateTweetFetchCheckpoint(maxIdStr) {
  * @param {object} tweet - A Tweet as returned by the Twitter API.
  * @returns {object} The pared down tweet, suitable for storage in the DB.
  */
-
 function removeUnwantedTweetFields(tweet) {
   var tweetUser = tweet['user'];
 
@@ -125,11 +118,11 @@ function removeUnwantedTweetFields(tweet) {
 // 'Tweets' collection.
 SyncedCron.add({
   name: 'fetchAndStoreTweets',
-  schedule: function(parser) {
+  schedule: function (parser) {
     // parser is a later.parse object
     return parser.text('every 15 seconds');
   },
-  job: function() {
+  job: function () {
     fetchAndStoreTweets(1);
   }
 });

@@ -9,7 +9,6 @@
  * them in the 'Posts' collection.
  * @param {number} [count=100] - The (max) number of tweets to fetch.
  */
-
 function processTweetsIntoPosts(count) {
   count = count || 10;
 
@@ -43,11 +42,10 @@ function processTweetsIntoPosts(count) {
  * stores them in the 'Posts' collection.
  * @param {Object} tweets - The tweets, as a cursor
  */
-
 function createPosts(tweets) {
   var maxIdStr = null;
 
-  tweets.forEach(function(tweet) {
+  tweets.forEach(function (tweet) {
     var tweetIdStr = tweet['id_str'];
 
     new PostCreator().createPostFromTweet(tweet);
@@ -68,29 +66,26 @@ function createPosts(tweets) {
  * @param {string} maxIdStr - The largest tweet id processed yet (not the
  * mongodb object _id, but the Twitter id).
  */
-
 function updateTweetProcessCheckpoint(maxIdStr) {
   // Does a create or update, as required
-  TweetProcessCheckpoints.update({
-    max_id_str: {
-      $exists: true
-    }
-  }, {
-    max_id_str: maxIdStr
-  }, {
-    upsert: true
-  });
+  TweetProcessCheckpoints.update(
+    {
+      max_id_str: { $exists: true }
+    },
+    { max_id_str: maxIdStr },
+    { upsert: true }
+  );
 }
 
 // A cron job for fetching tweets from Twitter, and storing them in the 
 // 'Tweets' collection.
 SyncedCron.add({
   name: 'processTweetsIntoPosts',
-  schedule: function(parser) {
+  schedule: function (parser) {
     // parser is a later.parse object
     return parser.text('every 15 seconds');
   },
-  job: function() {
+  job: function () {
     processTweetsIntoPosts(1);
   }
 });
