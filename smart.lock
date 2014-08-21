@@ -7,7 +7,8 @@
       "iron-router": {
         "version": "0.8.2"
       },
-      "bootstrap-3": {}
+      "bootstrap-3": {},
+      "pince": {}
     },
     "packages": {
       "twit": {
@@ -29,6 +30,11 @@
         "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
         "tag": "v3.2.0-1",
         "commit": "17a63902fc6cf1096c5289d963c66cf28b474727"
+      },
+      "pince": {
+        "git": "https://github.com/mad-eye/pince.git",
+        "tag": "v0.0.5",
+        "commit": "4524ecc0bdf043c49dc62e91bbd8a99c661081ed"
       },
       "iron-layout": {
         "git": "https://github.com/EventedMind/iron-layout.git",

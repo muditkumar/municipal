@@ -3,6 +3,13 @@
 // Only implementing the logic within PostCreator.createPost() is required,
 // which must also store the post once created.
 
+var log = new Logger('process_tweets_into_posts_job');
+
+// Job control parameters.
+// Change to suit your needs.
+var TWEET_PROCESS_BATCH_SIZE = 10;
+var TWEET_PROCESS_JOB_SCHEDULE = 'every 20 secs starting on the 11th sec';
+
 /**
  * Fetches tweets from the 'Tweets' collection, resuming after the last
  * processed tweet, processes them into posts (i.e. complaints) and stores
@@ -20,10 +27,10 @@ function processTweetsIntoPosts(count) {
 
     if (maxIdStr) {
       selector = {
-        'id_str': {
-          $gt: maxIdStr
-        }
+        'id_str': { $gt: maxIdStr }
       };
+
+      log.info('Processing tweets since tweet id ' + maxIdStr);
     }
   }
 
@@ -83,9 +90,9 @@ SyncedCron.add({
   name: 'processTweetsIntoPosts',
   schedule: function (parser) {
     // parser is a later.parse object
-    return parser.text('every 15 seconds');
+    return parser.text(TWEET_PROCESS_JOB_SCHEDULE);
   },
   job: function () {
-    processTweetsIntoPosts(1);
+    processTweetsIntoPosts(TWEET_PROCESS_BATCH_SIZE);
   }
 });

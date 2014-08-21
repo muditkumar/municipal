@@ -2,6 +2,13 @@
 // Contains all the logic for every step of this process.
 // Only starting off cron jobs with SyncedCron.start() is required.
 
+var log = new Logger('fetch_and_store_tweets_job');
+
+// Job control parameters.
+// Change to suit your needs.
+var TWEET_FETCH_BATCH_SIZE = 10;
+var TWEET_FETCH_JOB_SCHEDULE = 'every 20 secs starting on the 1st sec';
+
 // Create the Twitter API object
 var Twit = new TwitMaker({
   consumer_key: 'H7KxTzrTAh41NT2OuF5LChYVK',
@@ -23,7 +30,13 @@ function fetchAndStoreTweets(count) {
   var tweetFetchCheckpoint = TweetFetchCheckpoints.findOne();
 
   if (tweetFetchCheckpoint) {
-    sinceIdStr = tweetFetchCheckpoint['max_id_str'];
+    var maxIdStr = tweetFetchCheckpoint['max_id_str'];
+
+    if (maxIdStr) {
+      sinceIdStr = maxIdStr;
+
+      log.info('Fetching tweets since tweet id ' + sinceIdStr);
+    }
   }
 
   Twit.get(
@@ -36,7 +49,11 @@ function fetchAndStoreTweets(count) {
     Meteor.bindEnvironment( // Needed to run the callback in a Fiber
       function (err, data) {
         if (!err) {
-          storeTweets(data['statuses']);
+          var tweets = data['statuses'];
+
+          log.info('Fetched ' + tweets.length + ' new tweets');
+
+          storeTweets(tweets);
         }
       }
     )
@@ -52,7 +69,7 @@ function storeTweets(tweets) {
   var maxIdStr = null;
 
   for (var i = 0; i < tweets.length; i++) {
-    var tweet = tweets[0];
+    var tweet = tweets[i];
 
     var conciseTweet = removeUnwantedTweetFields(tweet);
 
@@ -120,9 +137,9 @@ SyncedCron.add({
   name: 'fetchAndStoreTweets',
   schedule: function (parser) {
     // parser is a later.parse object
-    return parser.text('every 15 seconds');
+    return parser.text(TWEET_FETCH_JOB_SCHEDULE);
   },
   job: function () {
-    fetchAndStoreTweets(1);
+    fetchAndStoreTweets(TWEET_FETCH_BATCH_SIZE);
   }
 });
